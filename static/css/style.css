@@ -1,0 +1,44 @@
+#container {
+    width: 300px;
+    margin: 50px auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.color-box {
+    padding: 20px;
+    margin: 10px 0;
+    font-size: 20px;
+    text-align: center;
+    color: whitesmoke;
+    border-radius: 5px;
+    cursor: grab;
+    -webkit-text-stroke: 0.5px black;
+    font-family: "Roboto Light", sans-serif;
+}
+
+/* Optional: Stil für das verschobene Element */
+.sortable-ghost {
+    opacity: 0.4;
+}
+
+
+.button-container {
+    width: 300px; /* Gleiche Breite wie der Container */
+    margin: 20px auto; /* Zentriert den Container */
+    display: flex;
+    justify-content: flex-end; /* Rechtsbündig */
+}
+
+#submit-button {
+    padding: 10px 20px;
+    background-color: #49ba00;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#submit-button:hover {
+    background-color: #275e00;
+}

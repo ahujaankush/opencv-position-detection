@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag & Drop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+  </head>
+  <body>
+    <div id="container" style="background-color: whitesmoke; padding: 5px 10px; border-color: black; border-radius: 15px">
+      <h3 style="font-family: Arial, sans-serif">Würfelanordnung</h3>
+      <div class="color-box" data-color="red" data-id="1" style="background-color: red;">Box 1</div>
+      <div class="color-box" data-color="yellow" data-id="2" style="background-color: yellow;">Box 2</div>
+      <div class="color-box" data-color="blue" data-id="3" style="background-color: #00009c;">Box 3</div>
+    </div>
+    <p id="result-message" style="text-align: center; margin-top: 5px; font-family: Arial, sans-serif"></p>
+    <div class="button-container">
+      <button id="submit-button">Absenden</button>
+    </div>
+
+    <script>
+    // Initialisiere SortableJS
+    var container = document.getElementById('container');
+
+    var socket = new WebSocket('ws://192.168.57.226:8080');
+
+    new Sortable(container, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+    });
+
+    // Eventlistener für den Absenden-Button
+    document.getElementById('submit-button').addEventListener('click', function() {
+      var order = Array.from(container.querySelectorAll('.color-box')).map(function (el) {
+        return {
+          color: el.getAttribute('data-color'),        // Farbe des Würfels aus data-color-Attribut
+          dest: el.getAttribute('data-id')             // Wohin der wuerfel gehoert, user input
+        };
+      });
+
+      // Hier könnte man die Reihenfolge an den Server senden
+      fetch('/state').then((response) => response.json()).then((response) => {
+        console.log(response)
+        response.forEach((e, i) => {
+          console.log(e)
+          for(let j = 0; j < order.length; ++j) {
+            if(order[j].color == e) {
+              order[j].from = i + 1;
+              break;
+            }
+          }
+        })
+
+        console.log('Absenden geklickt, Reihenfolge:', order);
+        var resultMessage = 'Die Boxen wurden in folgender Reihenfolge abgesendet: ' + order.join(', ');
+        document.getElementById('result-message').textContent = resultMessage;
+
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(order[0].from + "" + order[0].dest);
+          socket.send(order[1].from + "" + order[1].dest);
+          socket.send(order[2].from + "" + order[2].dest);
+
+          console.log(JSON.stringify(order));
+        } else {
+          console.log('Websocket not connected');
+        }
+      });
+    })
+    </script>
+  </body>
+</html>
